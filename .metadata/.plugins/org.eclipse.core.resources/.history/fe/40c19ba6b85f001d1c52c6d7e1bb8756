@@ -1,0 +1,142 @@
+package com.systemastics.api;
+
+//import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+//import org.springframework.security.core.userdetails.User;
+//import org.springframework.security.core.userdetails.User.UserBuilder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.firewall.DefaultHttpFirewall;
+import org.springframework.security.web.firewall.HttpFirewall;
+import com.systemastics.api.auth.handler.LoginSuccesHandler;
+import com.systemastics.api.services.JpaUserDetailsService;
+
+
+
+
+
+
+@Configuration
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(
+		// securedEnabled = true,
+		// jsr250Enabled = true,
+		prePostEnabled = true)
+public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
+
+	@Autowired
+	private BCryptPasswordEncoder passwordEncoder;
+	/*@Autowired
+	private DataSource dataSource;*/
+	@Autowired
+	private LoginSuccesHandler succesHandler;
+	
+	/*
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		
+		
+		http.headers().frameOptions().sameOrigin();
+	
+		http.authorizeRequests()
+		.antMatchers("/CSS/**","/assets/**","/documents/**", "/images/**", "/js/**", "/documents/**","/","/index","/elements","/generic","/signup","/signupUT")
+		.permitAll()
+		.antMatchers("/hometravel").hasAnyRole("UTRAVEL")
+		.antMatchers("/aux/getVacuna").hasAnyRole("UTRAVEL","USER")
+		.antMatchers("/msn").hasAnyRole("UTRAVEL","USER")
+		.antMatchers("/homeveterinaria").hasAnyRole("UB")
+		.antMatchers("/MyPerfil").hasAnyRole("USER,UTRAVEL")
+		.antMatchers("/svacuna").hasAnyRole("USER,UTRAVEL")
+		.antMatchers("/smascota").hasAnyRole("USER,UTRAVEL")
+		.anyRequest().authenticated().and()
+	    .formLogin()
+	    .successHandler(succesHandler)
+	    .loginPage("/loggin")
+	    .defaultSuccessUrl("/home", true)
+	    .failureUrl("/login-error")
+	    .permitAll().and()
+	    .logout().logoutSuccessUrl("/").permitAll();
+
+	}
+	
+
+	@Override
+	public void configure(WebSecurity web) {
+	         
+	    web.httpFirewall(allowUrlEncodedSlashHttpFirewall());
+	}
+	 
+	@Bean
+	public HttpFirewall allowUrlEncodedSlashHttpFirewall() {
+	    DefaultHttpFirewall firewall = new DefaultHttpFirewall();
+	    firewall.setAllowUrlEncodedSlash(true);
+	    return firewall;
+	}
+
+	
+	@Autowired
+	public void configurerGlobal(AuthenticationManagerBuilder builder) throws Exception {
+			
+			builder.userDetailsService(userDetailsService)
+			.passwordEncoder(passwordEncoder);
+		
+			builder.jdbcAuthentication()
+			.dataSource(dataSource)
+			.passwordEncoder(passwordEncoder)
+			.usersByUsernameQuery("select username, contrasena,enabled from usuarios where username=?")
+			.authoritiesByUsernameQuery("select a.id,a.authority from authorities a inner join usuarios u on (a.id=u.authority_id) where u.username=?");
+		PasswordEncoder encoder = passwordEncoder;
+		UserBuilder users = User.builder().passwordEncoder(encoder::encode);
+		builder.inMemoryAuthentication()
+				.withUser(users.username("0").password("123").roles("ADMIN", "USER"))				
+				.withUser(users.username("1").password("123").roles("USER"));
+
+	}*/
+	
+	//@Autowired
+	//UserDetailsServiceImpl userDetailsService;
+	//@Autowired
+	//private AuthEntryPointJwt unauthorizedHandler;
+
+	@Bean
+	public AuthTokenFilter authenticationJwtTokenFilter() {
+		return new AuthTokenFilter();
+	}
+
+	@Override
+	public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
+		authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+	}
+
+	@Bean
+	@Override
+	public AuthenticationManager authenticationManagerBean() throws Exception {
+		return super.authenticationManagerBean();
+	}
+
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http.cors().and().csrf().disable()
+			.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
+			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+			.authorizeRequests().antMatchers("/api/auth/**").permitAll()
+			.antMatchers("/api/test/**").permitAll()
+			.anyRequest().authenticated();
+
+		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+	}
+
+}

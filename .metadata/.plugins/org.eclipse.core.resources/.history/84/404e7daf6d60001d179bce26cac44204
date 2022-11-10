@@ -1,0 +1,105 @@
+package com.systemastics.api.controller;
+
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+
+import com.systemastics.api.models.payload.request.LoginRequest;
+import com.systemastics.api.models.payload.request.SignupRequest;
+import com.systemastics.api.models.payload.response.JwtResponse;
+import com.systemastics.api.models.payload.response.MessageResponse;
+import com.systemastics.api.services.IAutoridadService;
+import com.systemastics.api.services.IUsuarioService;
+import com.systemastics.api.auth.handler.JwtUtils;
+import com.systemastics.api.models.Authority;
+import com.systemastics.api.models.Usuario;
+
+@CrossOrigin(origins = "*", maxAge = 3600)
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
+	@Autowired
+	AuthenticationManager authenticationManager;
+	@Autowired
+	private IUsuarioService usuarioService;
+	@Autowired
+	private IAutoridadService autoridadService;
+	@Autowired
+	private BCryptPasswordEncoder passwordEncoder;
+
+	@Autowired
+	PasswordEncoder encoder;
+
+	@Autowired
+	JwtUtils jwtUtils;
+
+	@PostMapping("/signin")
+	public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
+
+		Authentication authentication = authenticationManager.authenticate(
+				new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+		String jwt = jwtUtils.generateJwtToken(authentication);
+		
+		Usuario userDetails = (Usuario) authentication.getPrincipal();		
+		List<String> roles = (List<String>) userDetails.getAuthority();
+
+		return ResponseEntity.ok(new JwtResponse(jwt, 
+												 userDetails.getId(), 
+												 userDetails.getUsername(), 
+												 userDetails.getContrasena(), 
+												 roles));
+	}
+	
+	@PostMapping("/signup")
+	public ResponseEntity<?> registerUser(@RequestBody SignupRequest signUpRequest) {
+		if (usuarioService.existsByUsername(signUpRequest.getUsername())) {
+			return ResponseEntity
+					.badRequest()
+					.body(new MessageResponse("Error: Username is already taken!"));
+		}
+
+		if (usuarioService.existsByEmail(signUpRequest.getEmail())) {
+			return ResponseEntity
+					.badRequest()
+					.body(new MessageResponse("Error: Email is already in use!"));
+		}
+		Usuario usuario = new Usuario();
+		Authority auth2 = new Authority();
+		Date dtf = new Date();				
+		Date datebirth=new SimpleDateFormat("yyyy/mm/dd").parse(datebirth2);
+		auth2 = autoridadService.findOne((long)1);
+		usuario.setAuthority(auth2);
+		usuario.setEnabled(false);
+		usuario.setInfo("{\"user_foto\":false,\"user_info\":false,\"pet_info\":false,\"pet_vacuna\":false,\"progreso\":0}");
+		usuario.setCreatdate(dtf);
+		usuario.setDatebirth(datebirth);		
+		String bcryptPassword = passwordEncoder.encode(usuario.getContrasena());
+		usuario.setContrasena(bcryptPassword);
+		usuarioService.save(usuario);
+
+		
+
+		return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+	}
+}

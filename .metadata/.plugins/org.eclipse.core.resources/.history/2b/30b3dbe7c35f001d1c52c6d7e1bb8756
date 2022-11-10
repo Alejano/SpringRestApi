@@ -1,0 +1,5 @@
+package com.systemastics.api.controller;
+
+public class AuthController {
+
+}

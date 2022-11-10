@@ -1,0 +1,5 @@
+package com.systemastics.api.repository;
+
+public class RoleRepository {
+
+}

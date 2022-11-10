@@ -1,0 +1,5 @@
+package com.systemastics.api.auth.handler;
+
+public class JwtAuthenticationEntryPoint {
+
+}

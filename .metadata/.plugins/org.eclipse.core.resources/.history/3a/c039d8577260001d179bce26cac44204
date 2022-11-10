@@ -1,0 +1,127 @@
+package com.systemastics.api.models.payload.request;
+
+
+
+import java.util.Date;
+import java.util.Set;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+public class SignupRequest {
+ 
+
+	private String username;
+	private String correo;
+	private String nombre;
+	private String apellido1;
+	private String apellido2;
+	private boolean enabled;
+	private String contrasena;
+	private String foto;
+	private String telefono;
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+	private Date datebirth;
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+	private Date creatdate;
+	private String edad;
+	private String biog;
+	private String info;
+	private String apodo;
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public String getCorreo() {
+		return correo;
+	}
+	public void setCorreo(String correo) {
+		this.correo = correo;
+	}
+	public String getNombre() {
+		return nombre;
+	}
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+	public String getApellido1() {
+		return apellido1;
+	}
+	public void setApellido1(String apellido1) {
+		this.apellido1 = apellido1;
+	}
+	public String getApellido2() {
+		return apellido2;
+	}
+	public void setApellido2(String apellido2) {
+		this.apellido2 = apellido2;
+	}
+	public boolean isEnabled() {
+		return enabled;
+	}
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+	public String getContrasena() {
+		return contrasena;
+	}
+	public void setContrasena(String contrasena) {
+		this.contrasena = contrasena;
+	}
+	public String getFoto() {
+		return foto;
+	}
+	public void setFoto(String foto) {
+		this.foto = foto;
+	}
+	public String getTelefono() {
+		return telefono;
+	}
+	public void setTelefono(String telefono) {
+		this.telefono = telefono;
+	}
+	public Date getDatebirth() {
+		return datebirth;
+	}
+	public void setDatebirth(Date datebirth) {
+		this.datebirth = datebirth;
+	}
+	public Date getCreatdate() {
+		return creatdate;
+	}
+	public void setCreatdate(Date creatdate) {
+		this.creatdate = creatdate;
+	}
+	public String getEdad() {
+		return edad;
+	}
+	public void setEdad(String edad) {
+		this.edad = edad;
+	}
+	public String getBiog() {
+		return biog;
+	}
+	public void setBiog(String biog) {
+		this.biog = biog;
+	}
+	public String getInfo() {
+		return info;
+	}
+	public void setInfo(String info) {
+		this.info = info;
+	}
+	public String getApodo() {
+		return apodo;
+	}
+	public void setApodo(String apodo) {
+		this.apodo = apodo;
+	}
+	
+	
+	
+}

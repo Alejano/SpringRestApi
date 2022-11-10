@@ -1,0 +1,5 @@
+package com.systemastics.api.models.payload.response;
+
+public class MessageResponse {
+
+}
